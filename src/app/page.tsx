@@ -110,7 +110,13 @@ function App() {
 				{connectors.map((connector) => (
 					<button
 						key={connector.uid}
-						onClick={() => connect({ connector })}
+						onClick={() => {
+							if(connector.id === "in-app-wallet"){
+								connect({ connector, strategy: "google" })
+							} else {
+								connect({ connector })
+							}}
+						}
 						type="button"
 					>
 						{connector.name}

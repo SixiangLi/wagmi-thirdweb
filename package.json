@@ -10,12 +10,13 @@
 	},
 	"dependencies": {
 		"@tanstack/react-query": "5.0.5",
+		"@thirdweb-dev/wagmi-adapter": "^0.2.115",
 		"next": "13.5.3",
 		"react": "^18.2.0",
 		"react-dom": "^18.2.0",
-		"thirdweb": "latest",
-		"viem": "latest",
-		"wagmi": "latest"
+		"thirdweb": "5.93.11",
+		"viem": "2.22.17",
+		"wagmi": "2.14.11"
 	},
 	"resolutions": {
 		"@coinbase/wallet-sdk": "4.0.0"
