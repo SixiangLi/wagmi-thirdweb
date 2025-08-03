@@ -118,9 +118,7 @@ function App() {
 						</button>
 					)}
 				</div>
-			</div>
 
-			<div className="section">
 				<div className="card">
 					<h2>Connect</h2>
 					<div className="grid grid-3">
