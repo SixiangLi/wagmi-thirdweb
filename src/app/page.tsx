@@ -81,105 +81,139 @@ function App() {
 	});
 
 	return (
-		<div style={{ padding: "0 20px" }}>
-			<div>
-				<h1>wagmi</h1>
-				<h2>Account</h2>
+		<div className="container fade-in">
+			<div className="section">
+				<div className="section-header">
+					<h1>wagmi</h1>
+				</div>
+				
+				<div className="card">
+					<h2>Account</h2>
+					<div className="grid grid-2">
+						<div>
+							<strong>Status:</strong> 
+							<span className={`status ${wagmiAccount.status === "connected" ? "connected" : wagmiAccount.status === "connecting" ? "pending" : "disconnected"}`}>
+								{wagmiAccount.status}
+							</span>
+						</div>
+						<div>
+							<strong>Chain ID:</strong> 
+							<code>{wagmiAccount.chainId}</code>
+						</div>
+						<div>
+							<strong>Addresses:</strong> 
+							<code>{JSON.stringify(wagmiAccount.addresses)}</code>
+						</div>
+					</div>
 
-				<div>
-					status: {wagmiAccount.status}
-					<br />
-					addresses: {JSON.stringify(wagmiAccount.addresses)}
-					<br />
-					chainId: {wagmiAccount.chainId}
+					{wagmiAccount.status === "connected" && (
+						<button
+							type="button"
+							className="secondary"
+							onClick={async () => {
+								await disconnectAsync();
+							}}
+						>
+							Disconnect
+						</button>
+					)}
+				</div>
+			</div>
+
+			<div className="section">
+				<div className="card">
+					<h2>Connect</h2>
+					<div className="grid grid-3">
+						{connectors.map((connector) => (
+							<button
+								key={connector.uid}
+								onClick={() => {
+									if(connector.id === "in-app-wallet"){
+										connect({ connector, strategy: "google" })
+									} else {
+										connect({ connector })
+									}}
+								}
+								type="button"
+							>
+								{connector.name}
+							</button>
+						))}
+					</div>
+					<div className="status pending">{status}</div>
+					{error && <div className="status disconnected">{error?.message}</div>}
+				</div>
+			</div>
+
+			<hr />
+
+			<div className="section">
+				<div className="section-header">
+					<h1>Thirdweb Components</h1>
 				</div>
 
-				{wagmiAccount.status === "connected" && (
-					<button
-						type="button"
-						onClick={async () => {
-							await disconnectAsync();
-						}}
-					>
-						Disconnect
-					</button>
+				{wagmiAccount.isConnected ? (
+					<div className="grid grid-2">
+						<div className="card">
+							<h2>
+								<a href="https://portal.thirdweb.com/typescript/v5/react/components/ConnectButton">{`<ConnectButton />`}</a>{" "}
+								component
+							</h2>
+							<ConnectButton client={client} />
+						</div>
+						
+						<div className="card">
+							<h2>
+								<a href="https://portal.thirdweb.com/connect/pay/get-started#option-2-embed-pay">{`<PayEmbed />`}</a>{" "}
+								component
+							</h2>
+							<PayEmbed client={client} />
+						</div>
+						
+						<div className="card">
+							<h2>
+								<a href="https://portal.thirdweb.com/typescript/v5/react/components/MediaRenderer">{`<MediaRenderer />`}</a>{" "}
+								component
+							</h2>
+							{nft && (
+								<div className="media-container">
+									<MediaRenderer client={client} src={nft.metadata.image} />
+								</div>
+							)}
+						</div>
+						
+						<div className="card">
+							<h2>
+								<a href="https://portal.thirdweb.com/typescript/v5/react/components/TransactionButton">{`<TransactionButton />`}</a>{" "}
+								component
+							</h2>
+							<TransactionButton
+								transaction={() => {
+									return claimTo({
+										contract,
+										quantity: 1n,
+										to: wagmiAccount.address!,
+										tokenId: 0n,
+									});
+								}}
+								onError={(e) => console.error(e)}
+								className="transaction-button"
+							>
+								Mint
+							</TransactionButton>
+						</div>
+					</div>
+				) : (
+					<div className="card">
+						<p style={{ textAlign: 'center', fontSize: 'var(--font-size-lg)', color: 'var(--text-secondary)' }}>
+							Connect with wagmi to share the connected wallet between both libraries!
+						</p>
+					</div>
 				)}
 			</div>
-			<div>
-				<h2>Connect</h2>
-				{connectors.map((connector) => (
-					<button
-						key={connector.uid}
-						onClick={() => {
-							if(connector.id === "in-app-wallet"){
-								connect({ connector, strategy: "google" })
-							} else {
-								connect({ connector })
-							}}
-						}
-						type="button"
-					>
-						{connector.name}
-					</button>
-				))}
-				<div>{status}</div>
-				<div>{error?.message}</div>
-			</div>
-
-			<hr
-				style={{
-					borderColor: "#666",
-					borderWidth: 1,
-					borderStyle: "solid",
-					margin: "30px 0",
-				}}
-			/>
-
-			<h1>thirdweb</h1>
-
-			{wagmiAccount.isConnected ? (
-				<div style={{ width: 500 }}>
-					<h2>
-						<a href="https://portal.thirdweb.com/typescript/v5/react/components/ConnectButton">{`<ConnectButton />`}</a>{" "}
-						component
-					</h2>
-					<ConnectButton client={client} />
-					<h2>
-						<a href="https://portal.thirdweb.com/connect/pay/get-started#option-2-embed-pay">{`<PayEmbed />`}</a>{" "}
-						component
-					</h2>
-					<PayEmbed client={client} />
-					<h2>
-						<a href="https://portal.thirdweb.com/typescript/v5/react/components/MediaRenderer">{`<MediaRenderer />`}</a>{" "}
-						component
-					</h2>
-					{nft && <MediaRenderer client={client} src={nft.metadata.image} />}
-					<h2>
-						<a href="https://portal.thirdweb.com/typescript/v5/react/components/TransactionButton">{`<TransactionButton />`}</a>{" "}
-						component
-					</h2>
-					<TransactionButton
-						transaction={() => {
-							return claimTo({
-								contract,
-								quantity: 1n,
-								to: wagmiAccount.address!,
-								tokenId: 0n,
-							});
-						}}
-						onError={(e) => console.error(e)}
-					>
-						Mint
-					</TransactionButton>
-				</div>
-			) : (
-				<div>
-					Connect with wagmi to share the connected wallet between both
-					libraries!
-				</div>
-			)}
-			<div style={{ padding: "100px 0px" }}>
-				<a href="https://github.com/thirdweb-example/wagmi-thirdweb">
+			
+			<div className="section" style={{ textAlign: 'center', padding: 'var(--spacing-2xl) 0' }}>
+				<a href="https://github.com/thirdweb-example/wagmi-thirdweb" className="glow">
 					View code on Github
 				</a>
 			</div>
