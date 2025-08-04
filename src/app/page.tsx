@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { createThirdwebClient, defineChain, getContract } from "thirdweb";
+import { createThirdwebClient, defineChain, getContract, OAuthOption } from "thirdweb";
 import { viemAdapter } from "thirdweb/adapters/viem";
 import {
 	useSetActiveWallet,
@@ -33,11 +33,20 @@ const contract = getContract({
 	client,
 });
 
+const OAuthOptions: Array<OAuthOption> = [
+	"google",
+	"apple",
+	"facebook",
+	"discord",
+	"line",
+	"x"
+]
+
 function App() {
 	const wagmiAccount = useAccount();
 	const { connectors, connect, status, error } = useConnect();
 	const { disconnectAsync } = useDisconnect();
-	// This is how to set a wagmi account in the thirdweb context to use with all the thirdweb components including Pay
+	// Note: This is how to set a wagmi account in the thirdweb context to use with all the thirdweb components including Pay
 	const { data: walletClient } = useWalletClient();
 	const { switchChainAsync } = useSwitchChain();
 	const setActiveWallet = useSetActiveWallet();
@@ -64,7 +73,7 @@ function App() {
 		setActive();
 	}, [walletClient, disconnectAsync, switchChainAsync, setActiveWallet]);
 
-	// handle disconnecting from wagmi
+	// Note: handle disconnecting from wagmi
 	const thirdwebWallet = useActiveWallet();
 	useEffect(() => {
 		const disconnectIfNeeded = async () => {
@@ -122,21 +131,34 @@ function App() {
 				<div className="card">
 					<h2>Connect</h2>
 					<div className="grid grid-3">
-						{connectors.map((connector) => (
-							<button
-								key={connector.uid}
-								onClick={() => {
-									if(connector.id === "in-app-wallet"){
-										connect({ connector, strategy: "google" })
-									} else {
-										connect({ connector })
-									}}
-								}
-								type="button"
-							>
-								{connector.name}
-							</button>
-						))}
+						{connectors.map((connector) => {
+							if (connector.id === "in-app-wallet") {
+								// Note: Social Login by each strategy
+								return OAuthOptions.map((strategy) => (
+									<button
+										key={`${connector.uid}-${strategy}`}
+										onClick={() => {
+											connect({ connector, strategy });
+										}}
+										type="button"
+									>
+										{connector.name} by {strategy}
+									</button>
+								));
+							} else {
+								return (
+									<button
+										key={connector.uid}
+										onClick={() => {
+											connect({ connector });
+										}}
+										type="button"
+									>
+										{connector.name}
+									</button>
+								);
+							}
+						})}
 					</div>
 					<div className="status pending">{status}</div>
 					{error && <div className="status disconnected">{error?.message}</div>}
@@ -150,7 +172,9 @@ function App() {
 					<h1>Thirdweb Components</h1>
 				</div>
 
-				{wagmiAccount.isConnected ? (
+				{
+				//Note: these are Thirdweb Components
+				wagmiAccount.isConnected ? (
 					<div className="grid grid-2">
 						<div className="card">
 							<h2>

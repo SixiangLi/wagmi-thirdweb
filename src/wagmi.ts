@@ -13,6 +13,7 @@ export const client = createThirdwebClient({
 
 export const config = createConfig({
 	chains: [mainnet, sepolia, polygon, base, baseSepolia],
+	// Note: inAppWalletConnector to enable social login
 	connectors: [injected(), inAppWalletConnector({
     client,
   })],
